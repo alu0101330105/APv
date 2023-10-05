@@ -84,6 +84,26 @@ void readFromFile(std::string filename, PushDownAutomata APv) {
     } 
   }
 
+  std::cout << "read automata:\n  alphabet = {";
+  for(char c : alphabet) {
+    std::cout << c << " ";
+  }
+  std::cout << "  }\n  stack alphabet = {";
+  for(char c : stackAlphabet) {
+    std::cout << c << " ";
+  }
+  std::cout << "  }\n  states = {";
+  for(State s : stateVector) {
+    std::cout << s.getName() << " ";
+  }
+  std::cout << "  }\n  transitions = {\n";
+  for(State s : stateVector) {
+    for(Transition t : s.getTransitions()) {
+      std::cout << "    " + t.toString() + "\n";
+    }
+  }
+  std::cout << "  }\n";
+
 
   APv.addAlphabet(alphabet);
   APv.addStackAlphabet(stackAlphabet);
@@ -91,7 +111,14 @@ void readFromFile(std::string filename, PushDownAutomata APv) {
 }
 
 void testLoop(PushDownAutomata APv) {
-  
+  std::string word;
+  while(true) {
+    std::cin >> word;
+    bool accepted = APv.isAccepted(word, true);
+    std::cout << "The word " + word + " is";
+    if(!accepted) std::cout << " not";
+    std::cout << " accepted by the languaje.\n";
+  }
 }
 
 int main(int argc, char* argv[]) {

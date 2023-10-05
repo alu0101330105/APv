@@ -46,7 +46,7 @@ Transition::Transition(std::string origin, std::string destiny, char symbol, cha
  * 
  * @param transition - The transition to be copied.
  */
-Transition::Transition(Transition& transition) {
+Transition::Transition(const Transition& transition) {
   this->symbol = transition.getSymbol();
   this->origin = transition.getOrigin();
   this->destiny = transition.getDestiny();
@@ -152,4 +152,10 @@ void Transition::setStackSymbol(char stackSymbol) {
  */
 void Transition::setNewStackSymbol(std::string newStackSymbol) {
   this->newStackSymbol = newStackSymbol;
+}
+
+std::string Transition::toString() const {
+  std::string output = "(" + this->origin + ", " + this->symbol + ", " + this->stackSymbol + 
+      ") → (" + this->destiny + ", " + this->newStackSymbol + ")";
+  return output; 
 }

@@ -211,11 +211,19 @@ std::vector<Transition> PushDownAutomata::getTransitions(State actualState, char
   std::vector<Transition> transitions = actualState.getTransitions();
   std::vector<Transition> compatibleTrans; 
   for(int j = 0; j < transitions.size(); j++) {
+    std::cout << transitions[j].getStackSymbol() << transitions[j].getSymbol();
     if(transitions[j].getStackSymbol() == stackSymbol && transitions[j].getSymbol() == actualSymbol) {
       compatibleTrans.push_back(transitions[j]);
     }
   }
   return compatibleTrans;
+}
+
+bool PushDownAutomata::isAccepted(std::string word, bool trace) const {
+  std::stack<char> pile;
+  pile.push(getInitialStackSymbol());
+  std::cout << "entered isAccepted 1\n";
+  return isAccepted(word, pile, getState(this->initialState), true);
 }
 
 /**
@@ -236,6 +244,7 @@ bool PushDownAutomata::isAccepted(const std::string& word, std::stack<char> pile
   char actualSymbol = (word.empty()) ? '\0' : word[0];
 
   std::vector<Transition> compatibleTrans = getTransitions(currentState, pile.top(), actualSymbol);
+  std::cout << compatibleTrans.size();
 
   for (const Transition& trans : compatibleTrans) {
     std::string newSS = trans.getNewStackSymbol();

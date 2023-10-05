@@ -29,7 +29,7 @@ class Transition {
     ~Transition() {};
     Transition(std::string origin, std::string destiny,
       char symbol, char stackSymbol, std::string newStackSymbol);
-    Transition(Transition& transition);
+    Transition(const Transition& transition);
     std::string getOrigin() const;
     std::string getDestiny() const;
     char getSymbol() const;
@@ -40,6 +40,7 @@ class Transition {
     void setSymbol(char symbol);
     void setStackSymbol(char stackSymbol);
     void setNewStackSymbol(std::string newStackSymbol);
+    std::string toString() const;
 
 };
 
