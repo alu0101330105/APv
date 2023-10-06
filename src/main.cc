@@ -133,11 +133,13 @@ void readFromFile(std::string filename, PushDownAutomata& APv) {
 
 }
 
-void testLoop(PushDownAutomata& APv) {
+void testLoop(PushDownAutomata& APv, bool trace) {
+  std::cout << (trace ? " trace" : " noTrace") << std::endl;
+
   std::string word = "";
   while(true) {
     std::cin >> word;
-    bool accepted = APv.isAccepted(word, true);
+    bool accepted = APv.isAccepted(word, trace);
     std::cout << "The word " + word + " is";
     if(!accepted) std::cout << " not";
     std::cout << " accepted by the languaje.\n";
@@ -147,8 +149,11 @@ void testLoop(PushDownAutomata& APv) {
 int main(int argc, char* argv[]) {
   std::string filename = argv[1];
   PushDownAutomata APv;
+  bool trace = false;
+  if(argc > 2) trace = bool(argv[2]);
+  std::cout << filename + (trace ? " trace" : " noTrace") + "\n";
 
   readFromFile(filename, APv);
   
-  testLoop(APv);
+  testLoop(APv, trace);
 }

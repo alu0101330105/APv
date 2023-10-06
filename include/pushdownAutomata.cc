@@ -236,7 +236,7 @@ bool PushDownAutomata::isAccepted(std::string word, bool trace) const {
   }
 
   // std::cout << "calling for recursion: started\n";
-  return isAccepted(word, pile, initialState, true);
+  return isAccepted(word, pile, initialState, trace);
 }
 
 /**
@@ -250,25 +250,28 @@ bool PushDownAutomata::isAccepted(std::string word, bool trace) const {
  */
 bool PushDownAutomata::isAccepted(const std::string& word, std::stack<char> pile, const std::string currentStateName, bool trace) const {
 
-  if(trace) {
-    std::cout << "Actual string: " + (word.empty() ? "." : word) + "\nPile: ";
-    std::stack<char> showPile = pile;
-    std::string showString = "";
-    while (!showPile.empty()) { 
-      showString = showString + showPile.top() + ' ';
-      showPile.pop();
-    }
-    std::cout << showString + "\n";
-  }
+  // if(trace) {
+  //   std::cout << "Actual string: " + (word.empty() ? "." : word) + "\nPile: ";
+  //   std::stack<char> showPile = pile;
+  //   std::string showString = "";
+  //   while (!showPile.empty()) { 
+  //     showString = showString + showPile.top() + ' ';
+  //     showPile.pop();
+  //   }
+  //   std::cout << (showString.empty() ? "." : showString) + "\n";
+  // }
   // if(word.empty()) std::cout << "word empty\n";
   // if(pile.empty()) std::cout << "pile empty\n";
   if (word.empty() && pile.empty()) {
     // Si la cadena y la pila están vacías, se acepta
     return true;
+  } else if(word.empty() || pile.empty()) {
+    if(trace) if(word.empty()) std::cout << "Word empty but pile is Not\n"; else std::cout << "Pile is empty but the world is not\n";
+    return false;
   }
 
   // std::cout << "entered recursive isAccepted\n";
-  char actualSymbol = (word.empty()) ? '\0' : word[0];
+  char actualSymbol = (word.empty()) ? '?' : word[0];
 
   State currentState = getState(currentStateName);
   // std::cout << "getting transitions\n";
@@ -281,6 +284,14 @@ bool PushDownAutomata::isAccepted(const std::string& word, std::stack<char> pile
     std::string newSS = trans.getNewStackSymbol();
 
     if (trace) {
+      std::cout << "Actual string: " + (word.empty() ? "." : word) + "\nPile: ";
+      std::stack<char> showPile = pile;
+      std::string showString = "";
+      while (!showPile.empty()) { 
+        showString = showString + showPile.top() + ' ';
+        showPile.pop();
+      }
+      std::cout << (showString.empty() ? "." : showString) + "\n";
       std::cout << "Trying transition: \n";
       std::cout << "  (" << currentState.getName() << ", " << actualSymbol << ", " <<
         pile.top() << ") → (" << trans.getDestiny() << ", " << newSS << ")\n";
@@ -300,8 +311,6 @@ bool PushDownAutomata::isAccepted(const std::string& word, std::stack<char> pile
     // Llama recursivamente a isAccepted con la nueva configuración
     if (isAccepted(newWord, pile, newState.getName(), trace)) {
       return true; // Si se encontró una ruta válida, regresa true
-    } else {
-      if(trace) std::cout << "Transition Dead End - Trying another\n";
     }
   }
 
