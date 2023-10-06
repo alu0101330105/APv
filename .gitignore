@@ -36,3 +36,6 @@ bin/*
 *.out
 *.app
 *.vim
+
+# Visual Studio
+.vscode
