@@ -21,7 +21,7 @@ PushDownAutomata::PushDownAutomata() {
   this->stackAlphabet = {};
   this->states = {};
   this->initialState = "";
-  this->initialStackSymbol = '\0';
+  this->initialStackSymbol = "";
   this->finalState = "";
 }
 
@@ -102,7 +102,7 @@ void PushDownAutomata::setInitialState(std::string initialState) {
  * 
  * @param initialStackSymbol - The name of the initial stack symbol.
  */
-void PushDownAutomata::setInitialStackSymbol(char initialStackSymbol) {
+void PushDownAutomata::setInitialStackSymbol(std::string initialStackSymbol) {
   this->initialStackSymbol = initialStackSymbol;
 }
 
@@ -160,9 +160,9 @@ std::string PushDownAutomata::getFinalState() const {
  * @brief Get the initial stack symbol of the pushdown automaton.
  * @details This method returns the name of the initial stack symbol of the pushdown automaton.
  * 
- * @return char 
+ * @return std::string
  */
-char PushDownAutomata::getInitialStackSymbol() const {
+std::string PushDownAutomata::getInitialStackSymbol() const {
   return this->initialStackSymbol;
 }
 
@@ -207,11 +207,19 @@ std::vector<State> PushDownAutomata::getNextStates(std::string stateName, char s
   return nextStates;
 }
 
-std::vector<Transition> PushDownAutomata::getTransitions(State actualState, char stackSymbol, char actualSymbol) const{
+std::vector<Transition> PushDownAutomata::getTransitions(std::string actualStateName, char stackSymbol, char actualSymbol) const{
+  // std::cout << "entered getTransitiona of automata\n";
+  State actualState = getState(actualStateName);
   std::vector<Transition> transitions = actualState.getTransitions();
-  std::vector<Transition> compatibleTrans; 
+  std::vector<Transition> compatibleTrans;
+
+  // std::cout << "actual state = " + actualState.getName();
+  // std::cout << "Debug transition:\n";
+  // for(Transition t : transitions) std::cout << t.toString() + "\n";
+
+
   for(int j = 0; j < transitions.size(); j++) {
-    std::cout << transitions[j].getStackSymbol() << transitions[j].getSymbol();
+    // std::cout << transitions[j].getStackSymbol() << transitions[j].getSymbol();
     if(transitions[j].getStackSymbol() == stackSymbol && transitions[j].getSymbol() == actualSymbol) {
       compatibleTrans.push_back(transitions[j]);
     }
@@ -221,9 +229,14 @@ std::vector<Transition> PushDownAutomata::getTransitions(State actualState, char
 
 bool PushDownAutomata::isAccepted(std::string word, bool trace) const {
   std::stack<char> pile;
-  pile.push(getInitialStackSymbol());
-  std::cout << "entered isAccepted 1\n";
-  return isAccepted(word, pile, getState(this->initialState), true);
+  std::string initialSS = this->initialStackSymbol;
+  while (initialSS.size() > 0) {
+    if(initialSS.back() != EPSILON) pile.push(initialSS.back());
+    initialSS.pop_back();
+  }
+
+  // std::cout << "calling for recursion: started\n";
+  return isAccepted(word, pile, initialState, true);
 }
 
 /**
@@ -235,38 +248,60 @@ bool PushDownAutomata::isAccepted(std::string word, bool trace) const {
  * @return true 
  * @return false 
  */
-bool PushDownAutomata::isAccepted(const std::string& word, std::stack<char> pile, const State& currentState, bool trace) const {
+bool PushDownAutomata::isAccepted(const std::string& word, std::stack<char> pile, const std::string currentStateName, bool trace) const {
+
+  if(trace) {
+    std::cout << "Actual string: " + (word.empty() ? "." : word) + "\nPile: ";
+    std::stack<char> showPile = pile;
+    std::string showString = "";
+    while (!showPile.empty()) { 
+      showString = showString + showPile.top() + ' ';
+      showPile.pop();
+    }
+    std::cout << showString + "\n";
+  }
+  // if(word.empty()) std::cout << "word empty\n";
+  // if(pile.empty()) std::cout << "pile empty\n";
   if (word.empty() && pile.empty()) {
     // Si la cadena y la pila están vacías, se acepta
     return true;
   }
 
+  // std::cout << "entered recursive isAccepted\n";
   char actualSymbol = (word.empty()) ? '\0' : word[0];
 
-  std::vector<Transition> compatibleTrans = getTransitions(currentState, pile.top(), actualSymbol);
-  std::cout << compatibleTrans.size();
+  State currentState = getState(currentStateName);
+  // std::cout << "getting transitions\n";
+  std::vector<Transition> compatibleTrans = getTransitions(currentStateName, pile.top(), actualSymbol);
+
+  if(trace) {
+  }
 
   for (const Transition& trans : compatibleTrans) {
     std::string newSS = trans.getNewStackSymbol();
 
     if (trace) {
-      std::cout << "(" << currentState.getName() << ", " << actualSymbol << ", " <<
+      std::cout << "Trying transition: \n";
+      std::cout << "  (" << currentState.getName() << ", " << actualSymbol << ", " <<
         pile.top() << ") → (" << trans.getDestiny() << ", " << newSS << ")\n";
     }
 
     State newState = getState(trans.getDestiny());
-    std::stack<char> newPile = pile; // Copia la pila actual
 
     // Actualiza la pila con el nuevo símbolo
+    pile.pop();
     while (newSS.size() > 0) {
-      newPile.pop();
-      if(newSS.back() != EPSILON) newPile.push(newSS.back());
+      if(newSS.back() != EPSILON) pile.push(newSS.back());
       newSS.pop_back();
     }
 
+    std::string newWord = word;
+    newWord.erase(newWord.begin());
     // Llama recursivamente a isAccepted con la nueva configuración
-    if (isAccepted(word.substr(1), newPile, newState, trace)) {
+    if (isAccepted(newWord, pile, newState.getName(), trace)) {
       return true; // Si se encontró una ruta válida, regresa true
+    } else {
+      if(trace) std::cout << "Transition Dead End - Trying another\n";
     }
   }
 

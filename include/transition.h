@@ -18,11 +18,11 @@
 
 class Transition {
   private:
-    std::string origin;
-    std::string destiny;
-    char symbol;
-    char stackSymbol;
-    std::string newStackSymbol;
+    std::string origin = "";
+    std::string destiny = "";
+    char symbol = '\0';
+    char stackSymbol = '\0';
+    std::string newStackSymbol = "";
   
   public:
     Transition();

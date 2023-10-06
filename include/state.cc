@@ -75,6 +75,7 @@ void State::addTransition(std::vector<Transition> transitions) {
  * @return std::vector<Transition> 
  */
 std::vector<Transition> State::getTransitions() const {
+  // std::cout << "entered getTransitions of State\n";
   return this->transitions;
 }
 

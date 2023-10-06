@@ -16,10 +16,10 @@
 
 class State {
   private:
-    std::string name;
+    std::string name = "";
     std::vector<Transition> transitions;
-    bool isInitial;
-    bool isFinal;
+    bool isInitial = false;
+    bool isFinal = false;
 
   public:
     State();

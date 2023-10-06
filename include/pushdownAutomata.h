@@ -20,9 +20,9 @@ class PushDownAutomata {
     std::vector<State> states;
     std::vector<char> alphabet;
     std::vector<char> stackAlphabet;
-    std::string initialState;
-    std::string finalState;
-    char initialStackSymbol;
+    std::string initialState = "";
+    std::string finalState = "";
+    std::string initialStackSymbol = "";
 
   public:
     PushDownAutomata();
@@ -33,19 +33,19 @@ class PushDownAutomata {
     void addAlphabet(std::vector<char> alphabet);
     void addStackAlphabet(std::vector<char> stackAlphabet);
     void setInitialState(std::string initialState);
-    void setInitialStackSymbol(char initialStackSymbol);
+    void setInitialStackSymbol(std::string initialStackSymbol);
     void setFinalState(std::string finalState);
     std::vector<State> getStates() const;
     std::vector<char> getAlphabet() const;
     std::vector<char> getStackAlphabet() const;
     std::string getInitialState() const;
     std::string getFinalState() const;
-    char getInitialStackSymbol() const;
+    std::string getInitialStackSymbol() const;
     State getState(std::string name) const;
     std::vector<State> getNextStates(std::string stateName, char symbol, char stackSymbol) const;
-    std::vector<Transition> getTransitions(State state, char stackSymbol, char symbol) const;
+    std::vector<Transition> getTransitions(std::string state, char stackSymbol, char symbol) const;
     bool isAccepted(std::string word, bool trace = false) const;
-    bool isAccepted(const std::string& word, std::stack<char> pile, const State& currentState, bool trace = false) const;
+    bool isAccepted(const std::string& word, std::stack<char> pile, const std::string currentState, bool trace = false) const;
 };
 
 #endif // PUSHDOWNAUTOMATA_H

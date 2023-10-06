@@ -13,7 +13,7 @@
 #include <fstream>
 #include <sstream>
 
-void readFromFile(std::string filename, PushDownAutomata APv) {
+void readFromFile(std::string filename, PushDownAutomata& APv) {
   std::fstream file;
   file.open(filename, std::ios::in);
 
@@ -22,7 +22,7 @@ void readFromFile(std::string filename, PushDownAutomata APv) {
     exit(EXIT_FAILURE);
   }
 
-  std::string line;
+  std::string line = "";
   std::getline(file, line);
   while(line[0] == '#') {
     getline(file, line);
@@ -52,7 +52,7 @@ void readFromFile(std::string filename, PushDownAutomata APv) {
     stackAlphabet.push_back(token[0]);
   }
 
-  std::string initialState;
+  std::string initialState = "";
   std::getline(file, initialState);
 
   std::vector<State> stateVector;
@@ -62,7 +62,7 @@ void readFromFile(std::string filename, PushDownAutomata APv) {
     stateVector.push_back(state);
   }
 
-  std::string stackInitialSymbol;
+  std::string stackInitialSymbol = "";
   std::getline(file, stackInitialSymbol);
 
   std::vector<Transition> transitions;
@@ -73,45 +73,68 @@ void readFromFile(std::string filename, PushDownAutomata APv) {
     while(std::getline(ss, token, delimeter)) {
       trans.push_back(token);
     }
+    std::string newSS;
+    for(int i = 4; i < trans.size(); i++) newSS = newSS + trans[i];
 
-    Transition newTrans(trans[0], trans[3], trans[1][0], trans[2][0], trans[4]);
+    Transition newTrans(trans[0], trans[3], trans[1][0], trans[2][0], newSS);
     transitions.push_back(newTrans);
   }
 
+  // for(Transition t : transitions) std::cout << "Debug Transitiosn: " + t.toString() + "\n";
+
+
   for(Transition actual : transitions) {
-    for(State state : stateVector) {
-      if(actual.getOrigin() == state.getName()) state.addTransition(actual);
+    for(int i = 0; i < stateVector.size(); i++) {
+      // std::cout << "Debug Transitiosn: " + actual.toString() + "\n";
+      // std::cout << "Debug State: " + stateVector[i].getName() + "\n";
+      if(actual.getOrigin() == stateVector[i].getName()) {
+        // std::cout << "found " + actual.getOrigin() + " for state " + stateVector[i].getName() + "\n";
+        stateVector[i].addTransition(actual);
+        // std::cout << "checking state transition insertion: ";
+        // for(Transition t : stateVector[i].getTransitions()) std::cout << t.toString() + "\n";
+      }
     } 
   }
 
+  APv.addAlphabet(alphabet);
+  APv.addStackAlphabet(stackAlphabet);
+  APv.addState(stateVector);
+  APv.setInitialState(initialState);
+  APv.setInitialStackSymbol(stackInitialSymbol);
+
+
   std::cout << "read automata:\n  alphabet = {";
-  for(char c : alphabet) {
+  for(char c : APv.getAlphabet()) {
     std::cout << c << " ";
   }
-  std::cout << "  }\n  stack alphabet = {";
-  for(char c : stackAlphabet) {
+  std::cout << "}\n  stack alphabet = {";
+  for(char c : APv.getStackAlphabet()) {
     std::cout << c << " ";
   }
-  std::cout << "  }\n  states = {";
-  for(State s : stateVector) {
+
+  std::cout << "}\n  initial stack simbols = {";
+  for(char c : APv.getInitialStackSymbol()) {
+    std::cout << c << " ";
+  }
+
+  std::cout << "}\n  states = {";
+  for(State s : APv.getStates()) {
     std::cout << s.getName() << " ";
   }
-  std::cout << "  }\n  transitions = {\n";
-  for(State s : stateVector) {
+
+  std::cout << "}\n  initial state = {" + APv.getInitialState();
+  std::cout << "}\n  transitions = {\n";
+  for(State s : APv.getStates()) {
     for(Transition t : s.getTransitions()) {
       std::cout << "    " + t.toString() + "\n";
     }
   }
   std::cout << "  }\n";
 
-
-  APv.addAlphabet(alphabet);
-  APv.addStackAlphabet(stackAlphabet);
-  APv.addState(stateVector);
 }
 
-void testLoop(PushDownAutomata APv) {
-  std::string word;
+void testLoop(PushDownAutomata& APv) {
+  std::string word = "";
   while(true) {
     std::cin >> word;
     bool accepted = APv.isAccepted(word, true);
